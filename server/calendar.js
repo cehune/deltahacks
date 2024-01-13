@@ -3,7 +3,18 @@ const path = require('path');
 const process = require('process');
 const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
+const serial = require('./serial')
+const { SerialPort } = require('serialport')
+//const {ReadlineParser} = require('@serialport/parser-readline');
+const parsers = SerialPort.parsers;
 
+const port = new SerialPort({
+    path:'COM4',
+    baudRate: 9600,
+    dataBits: 8,
+    stopBits: 1,
+    parity: 'none',
+})
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
 // The file token.json stores the user's access and refresh tokens, and is
@@ -96,8 +107,13 @@ async function listEvents(auth) {
 
         if (start <= upcoming && end >= new Date()) {
             console.log(`Upcoming event within the next 60 minutes: ${event.summary} at ${event.start.dateTime}`);
-            // Blah, send stuff to arduino, 
-        
+            console.log("Sending info via serial")
+            port.write(event.summary, function(err) {
+              if (err) {
+                return console.log('Error on write: ', err.message)
+              }
+              console.log('message written')
+            })
           }
     });
 

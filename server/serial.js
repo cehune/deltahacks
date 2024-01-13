@@ -1,10 +1,10 @@
 //for collecting data from the a rduino post
 const { SerialPort } = require('serialport')
-const {ReadlineParser} = require('@serialport/parser-readline');
+//const {ReadlineParser} = require('@serialport/parser-readline');
 const parsers = SerialPort.parsers;
 
 const port = new SerialPort({
-    path:'COM3',
+    path:'COM4',
     baudRate: 9600,
     dataBits: 8,
     stopBits: 1,
@@ -14,6 +14,7 @@ const port = new SerialPort({
 
 function sendReminder(reminder) {
     //
+    console.log("sending over reminder via serial")
     port.write(reminder)
 }
 
@@ -27,3 +28,5 @@ function receive() {
         console.log("they didn't do the task :(")
     }
 }
+
+module.exports.port = port;
