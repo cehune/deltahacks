@@ -66,11 +66,38 @@ async function authorize() {
   if (client.credentials) {
     console.log("Credentials found")
     await saveCredentials(client);
+    
   }
   return client;
 }
 
-
-module.exports.requestAccess =  function requestAccess() {
-  authorize().catch(console.error);
+async function listEvents(auth) {
+  const calendar = google.calendar({version: 'v3', auth});
+  const res = await calendar.events.list({
+    calendarId: 'primary',
+    timeMin: new Date().toISOString(),
+    maxResults: 10,
+    singleEvents: true,
+    orderBy: 'startTime',
+  });
+  const events = res.data.items;
+  if (!events || events.length === 0) {
+    console.log('No upcoming events found.');
+    return;
+  }
+  console.log('Upcoming 10 events:');
+  events.map((event, i) => {
+    const start = event.start.dateTime || event.start.date;
+    console.log(`${start} - ${event.summary}`);
+    // console.log()
+  });
+  
 }
+
+//While loop: Every 60 seconds
+setInterval( () => {authorize().then(listEvents).catch(console.error); } , 60000 )
+
+
+// module.exports.requestAccess =  function requestAccess() {
+//   authorize().catch(console.error);
+// }
