@@ -4,7 +4,7 @@ require('dotenv').config()
 calendar = require('./calendar')
 const app = express()
 
-calendar.requestAccess()
+// calendar.requestAccess()
 
 app.use(express.json()) // extra json
 app.use((req, res, next) => {
