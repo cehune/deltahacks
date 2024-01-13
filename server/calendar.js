@@ -81,20 +81,30 @@ async function listEvents(auth) {
     orderBy: 'startTime',
   });
   const events = res.data.items;
+  // console.log(res)
   if (!events || events.length === 0) {
     console.log('No upcoming events found.');
     return;
   }
-  console.log('Upcoming 10 events:');
-  events.map((event, i) => {
-    const start = event.start.dateTime || event.start.date;
-    console.log(`${start} - ${event.summary}`);
-    // console.log()
-  });
-  
+  console.log('Upcoming events within the next 60 minutes:');
+    events.forEach((event, i) => {
+        const start = new Date(event.start.dateTime || event.start.date);
+        const end = new Date(event.end.dateTime || event.end.date);
+
+        const upcoming = new Date();
+        upcoming.setMinutes(upcoming.getMinutes() + 60);
+
+        if (start <= upcoming && end >= new Date()) {
+            console.log(`Upcoming event within the next 60 minutes: ${event.summary} at ${event.start.dateTime}`);
+            // Blah, send stuff to arduino, 
+        
+          }
+    });
+
 }
 
-//While loop: Every 60 seconds
+//While loop: Run once first then Every 60 seconds
+authorize().then(listEvents).catch(console.error);
 setInterval( () => {authorize().then(listEvents).catch(console.error); } , 60000 )
 
 
