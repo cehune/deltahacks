@@ -15,16 +15,24 @@ const cohere = new CohereClient({
   token: API_KEY,
 });
 
-(async () => {
-  const stream = await cohere.chatStream({
-      model: "command",
-      message: "Tell me a story in 5 parts!",
+//Recives the event name from google calendar
+//If the event name is "take pill", "brush teeth", "etc"
+//prompt: define a const in the above condition
+//generate prompt runs with var in the parameter
+
+// Note:
+//checking is running evry minute right now 
+//need to be redefining and returning instructions after every check 
+
+(async function generatePrompt() {
+  const prediction = await cohere.generate({
+      prompt: "tell me how to take aceteminophen in 20 words",
+      maxTokens: 50,
   });
 
-  for await (const chat of stream) {
-      if (chat.eventType === "text-generation") {
-          process.stdout.write(chat.text);
-      }
+  
+console.log("Received prediction:", prediction.generations[0].text );
+}
   }
 })();
 
