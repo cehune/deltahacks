@@ -127,10 +127,16 @@ async function listEvents(auth) {
         const end = new Date(event.end.dateTime || event.end.date);
 
         const upcoming = new Date();
+        const currentTime = new Date();
         upcoming.setMinutes(upcoming.getMinutes() + 60);
+
+        if (start <= currentTime && end >= currentTime) {
+          console.log(`Event happening now: ${event.summary} from ${event.start.dateTime} to ${event.end.dateTime}`);
+        }
 
         if (start <= upcoming && end >= new Date()) {
             console.log(`Upcoming event within the next 60 minutes: ${event.summary} at ${event.start.dateTime}`);
+
             console.log("Sending info via serial")
             port.write(event.summary, function(err) {
               if (err) {
@@ -138,7 +144,9 @@ async function listEvents(auth) {
               }
               console.log('message written')
             })
+
           }
+
     });
 
 }
