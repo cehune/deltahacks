@@ -6,6 +6,13 @@ const {google} = require('googleapis');
 const { SerialPort } = require('serialport')
 const { CohereClient } = require('cohere-ai');
 
+const port = new SerialPort({
+  path:'COM4',
+  baudRate: 9600,
+  dataBits: 8,
+  stopBits: 1,
+  parity: 'none',
+})
 
 require('dotenv').config()
 const API_KEY = process.env.TOKEN
@@ -23,29 +30,20 @@ const cohere = new CohereClient({
 //checking is running evry minute right now 
 //need to be redefining and returning instructions after every check 
 
-(async function generatePrompt() {
+async function generatePrompt(task) {
   const prediction = await cohere.generate({
-      prompt: "tell me how to take aceteminophen in 20 words",
-      maxTokens: 50,
+    prompt: "tell me how to " + task + " in 20 words",
+    maxTokens: 50,
   });
 
-  
-console.log("Received prediction:", prediction.generations[0].text );
+  console.log("Received prediction:", prediction.generations[0].text);
+  return prediction.generations[0].text;
 }
-  }
-})();
 
 
 //const {ReadlineParser} = require('@serialport/parser-readline');
 const parsers = SerialPort.parsers;
 
-const port = new SerialPort({
-    path:'COM4',
-    baudRate: 9600,
-    dataBits: 8,
-    stopBits: 1,
-    parity: 'none',
-})
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
@@ -132,7 +130,7 @@ async function listEvents(auth) {
     return;
   }
   console.log('Upcoming events within the next 60 minutes:');
-    events.forEach((event, i) => {
+    events.forEach( async (event, i) => {
         const start = new Date(event.start.dateTime || event.start.date);
         const end = new Date(event.end.dateTime || event.end.date);
 
@@ -147,30 +145,41 @@ async function listEvents(auth) {
         if (start <= upcoming && end >= new Date()) {
             console.log(`Upcoming event within the next 60 minutes: ${event.summary} at ${event.start.dateTime}`);
 
-            console.log("Sending info via serial")
-            port.write(event.summary + "   ", function(err) {
-              if (err) {
-                return console.log('Error on write: ', err.message)
-              }
-              console.log('message written') 
-            })
-            port.write("take your meds girliepop you deserve it" + "   ", function(err) {
-              if (err) {
-                return console.log('Error on write: ', err.message)
-              }
-              console.log('message written')
-            })
+             console.log("Sending info via serial")
+             port.write(event.summary + "   ", async function(err) {
+               if (err) {
+               return console.log('Error on write: ', err.message)
+               }
+               console.log('message written') 
+              if (event.summary){
+                    const task = event.summary
+                  console.log("task:"  , event.summary)
+
+                  const cohere_advice = await generatePrompt(task);
+                  console.log(cohere_advice  + "   ", function(err){} ) ;  
+                  if (!cohere_advice) {
+                    return console.log('Error on write: ', err.message)
+                  }
+              
+              
 
           }
+        }
+    );
+        
+    }})}
+  
 
-    });
-
+  async function run() {
+  try {
+    const auth = await authorize();
+    listEvents(auth);
+    setInterval(() => {
+      listEvents(auth).catch(console.error);
+    }, 10000);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-//While loop: Run once first then Every 60 seconds
-setInterval( () => {authorize().then(listEvents).catch(console.error); } , 30000 )
-
-
-// module.exports.requestAccess =  function requestAccess() {
-//   authorize().catch(console.error);
-// }
+run();
