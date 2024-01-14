@@ -120,9 +120,13 @@ async function listEvents(auth) {
               if (err) {
                 return console.log('Error on write: ', err.message)
               }
+              console.log('message written') 
+            })
+            port.write("take your meds girliepop you deserve it" + "   ", function(err) {
+              if (err) {
+                return console.log('Error on write: ', err.message)
+              }
               console.log('message written')
-              
-              
             })
 
           }
@@ -132,8 +136,7 @@ async function listEvents(auth) {
 }
 
 //While loop: Run once first then Every 60 seconds
-authorize().then(listEvents).catch(console.error);
-setInterval( () => {authorize().then(listEvents).catch(console.error); } , 20000 )
+setInterval( () => {authorize().then(listEvents).catch(console.error); } , 30000 )
 
 
 // module.exports.requestAccess =  function requestAccess() {
