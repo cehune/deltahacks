@@ -3,7 +3,6 @@ const path = require('path');
 const process = require('process');
 const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
-const serial = require('./serial')
 const { SerialPort } = require('serialport')
 const { CohereClient } = require('cohere-ai');
 
@@ -47,6 +46,7 @@ const port = new SerialPort({
     stopBits: 1,
     parity: 'none',
 })
+
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
 // The file token.json stores the user's access and refresh tokens, and is
@@ -114,6 +114,8 @@ async function authorize() {
   return client;
 }
 
+const delay = ms => new Promise(res => setTimeout(res, ms)); 
+
 async function listEvents(auth) {
   const calendar = google.calendar({version: 'v3', auth});
   const res = await calendar.events.list({
@@ -146,7 +148,13 @@ async function listEvents(auth) {
             console.log(`Upcoming event within the next 60 minutes: ${event.summary} at ${event.start.dateTime}`);
 
             console.log("Sending info via serial")
-            port.write(event.summary, function(err) {
+            port.write(event.summary + "   ", function(err) {
+              if (err) {
+                return console.log('Error on write: ', err.message)
+              }
+              console.log('message written') 
+            })
+            port.write("take your meds girliepop you deserve it" + "   ", function(err) {
               if (err) {
                 return console.log('Error on write: ', err.message)
               }
@@ -160,8 +168,7 @@ async function listEvents(auth) {
 }
 
 //While loop: Run once first then Every 60 seconds
-authorize().then(listEvents).catch(console.error);
-setInterval( () => {authorize().then(listEvents).catch(console.error); } , 60000 )
+setInterval( () => {authorize().then(listEvents).catch(console.error); } , 30000 )
 
 
 // module.exports.requestAccess =  function requestAccess() {
