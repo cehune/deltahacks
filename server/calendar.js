@@ -5,6 +5,30 @@ const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
 const serial = require('./serial')
 const { SerialPort } = require('serialport')
+const { CohereClient } = require('cohere-ai');
+
+
+require('dotenv').config()
+const API_KEY = process.env.TOKEN
+
+const cohere = new CohereClient({
+  token: API_KEY,
+});
+
+(async () => {
+  const stream = await cohere.chatStream({
+      model: "command",
+      message: "Tell me a story in 5 parts!",
+  });
+
+  for await (const chat of stream) {
+      if (chat.eventType === "text-generation") {
+          process.stdout.write(chat.text);
+      }
+  }
+})();
+
+
 //const {ReadlineParser} = require('@serialport/parser-readline');
 const parsers = SerialPort.parsers;
 
