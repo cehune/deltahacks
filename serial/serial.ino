@@ -6,15 +6,7 @@ void setup() {
   lcd.init(); // initialize the lcd
   lcd.backlight();
   Serial.begin(9600);
-  /*
-  lcd.setCursor(0, 0);            // move cursor the first row
-  lcd.print("mckale is cool mckale is cool");          // print message at the first row
-  lcd.setCursor(0, 1);            // move cursor to the second row
-  lcd.print("jessica is cool"); // print message at the second row
-  lcd.setCursor(0, 2);            // move cursor to the third row
-  lcd.print("carmelli is cool");          // print message at the third row
-  lcd.setCursor(0, 3);            // move cursor to the fourth row
-  lcd.print("woo deltahacks");   // print message the fourth row  */
+
 pinMode(11, OUTPUT);
 pinMode(12, OUTPUT);
 }

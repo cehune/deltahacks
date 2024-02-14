@@ -6,7 +6,7 @@ const app = express()
 
 
 
-app.use(express.json()) // extra json
+app.use(express.json()) // extra 
 app.use((req, res, next) => {
     console.log(req.path, res.method)
     next()
